@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" href="https://scatch.ssu.ac.kr/wp-content/uploads/sites/5/2019/07/cropped-favicon-32x32.png">
+    <title>숭실대학교 학생식당</title>
+</head>
+<body>
+    <h1 class='title'>숭실대학교 학생식당</h1>
+    <nav>
+        <a href="{{ url_for('home') }}">메뉴</a>
+        <a href="{{ url_for('recipe') }}">레시피</a>
+        <a href="{{ url_for('ingredients') }}">재료 정보 / 구입</a>
+        <a href="{{ url_for('order') }}">주문 목록</a>
+        <a href="{{ url_for('suppliers') }}">공급자</a>
+    </nav>
+    {% if data %}
+      <table border="1">
+            <tr>
+              <th>업체 이름</th>
+              <th>연락처</th>
+              <th>주소</th>
+              <th>계약 여부</th>
+            </tr>
+          {% for row in data %}
+            <tr class="table_item">
+              <td class="main_table_item_name">
+                <a href="{{ url_for('suppliers') }}?id={{ row['SupplierID'] }}">
+                  {{ row['Name'] }}
+                </a>
+              </td>
+              <td class='table_item_phone'>{{ row['Phone']}}</td>
+              <td class='table_item_address'>{{ row['Address']}}</td>
+              <td class='table_item_status'>
+                {% if row['ContractStatus'] == 'Active' %}
+                  계약 중
+                {% else %}
+                  계약 만료
+                {% endif %}
+              </td>
+            </tr>
+            {% if detail_data and detail_data[0]['SupplierID'] == row['SupplierID'] %}
+              <tr>
+                <td colspan="5" class="contract-details">
+                  <div class="contract-history">
+                    <h4>계약 이력</h4>
+                    <table border="1">
+                      <tr>
+                        <th>번호</th>
+                        <th>시작 날짜</th>
+                        <th>만료 날짜</th>
+                      </tr>
+                      {% for detail_row in detail_data %}
+                        <tr class="table_item">
+                          <td>{{ loop.index }}</td>
+                          <td>{{ detail_row['StartDate'] }}</td>
+                          <td>{{ detail_row['EndDate'] }}</td>
+                        </tr>
+                      {% endfor %}
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+      </table>
+    {% else %}
+      <h2>등록된 공급 업체가 없습니다.</h2>
+    {% endif %}
+</body>
+</html>

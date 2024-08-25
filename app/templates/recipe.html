@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" href="https://scatch.ssu.ac.kr/wp-content/uploads/sites/5/2019/07/cropped-favicon-32x32.png">
+    <title>숭실대학교 학생식당</title>
+</head>
+<body>
+    <h1 class='title'>숭실대학교 학생식당</h1>
+    <nav>
+        <a href="{{ url_for('home') }}">메뉴</a>
+        <a href="{{ url_for('recipe') }}">레시피</a>
+        <a href="{{ url_for('ingredients') }}">재료 정보 / 구입</a>
+        <a href="{{ url_for('order') }}">주문 목록</a>
+        <a href="{{ url_for('suppliers') }}">공급자</a>
+    </nav>
+    <form action="{{ url_for('recipe') }}" method="GET">
+        <select required id="nameInput" name="name">
+            <option value="">레시피를 선택해주세요</option>
+            {% for recipe in recipes %}
+            <option value="{{ recipe['Name'] }}">{{ recipe['Name'] }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">검색</button>
+    </form>
+    {% if data %}
+      <h2 class='recipe_name'>{{ data[0]['Name'] }}</h2>
+      <p class='recipe_instructions' style="white-space: pre-wrap;">{{ data[0]['Instructions'] }}</p>
+      <table border="1">
+            <p>필요 재료(300인분 기준)</p>
+            <tr>
+              <th>재료 이름</th>
+              <th>필요 수량</th>
+              <th>재고</th>
+            </tr>
+            {% for ingredient_row in required_ingredient_data %}
+              <tr class="table_item">
+                <td class='table_item_name'>{{ ingredient_row['Name'] }}</td>
+                <td class='table_item_quantity'>
+                    {{ ingredient_row['TotalQuantity'] | round }} {{ ingredient_row['Unit'] }}
+                </td>
+                <td class='table_item_name'>{{ ingredient_row['TotalStock'] | default(0, true) | round }} {{ ingredient_row['Unit'] }}</td>
+              </tr>
+            {% endfor %}
+      </table>
+      <table border="1">
+            <p>영양소(1인분 기준)</p>
+            <tr>
+              <th>Calories</th>
+              <th>단백질</th>
+              <th>탄수화물</th>
+              <th>지방</th>
+              <th>당</th>
+              <th>나트륨</th>
+            </tr>
+            {% for nutrition_row in nutrition_data %}
+              <tr class="table_item">
+                <td>{{ nutrition_row['Calories'] | round(2) }} kcal</td>
+                <td>{{ nutrition_row['Protein'] | round(2) }} g</td>
+                <td>{{ nutrition_row['Carbohydrates'] | round(2) }} g</td>
+                <td>{{ nutrition_row['Fat'] | round(2) }} g</td>
+                <td>{{ nutrition_row['Sugar'] | round(2) }} g</td>
+                <td>{{ nutrition_row['Sodium'] | round(2) }} mg</td>
+              </tr>
+            {% endfor %}
+      </table>
+      <form class="menu-register-form">
+        <h3>메뉴 등록하기</h3>
+        <div>
+          <label for="termSelect">시간대:</label>
+          <select required id="termSelect" name="Term">
+            <option value="">선택해주세요</option>
+            <option value="Breakfast">아침</option>
+            <option value="Lunch">점심</option>
+            <option value="Dinner">저녁</option>
+          </select>
+        </div>
+        <div>
+          <label for="dateInput">날짜:</label>
+          <input required type="date" id="dateInput" name="Date">
+        </div>
+        <div>
+          <label for="priceInput">가격:</label>
+          <input required type="number" id="priceInput" name="Price" min="0" step="100" placeholder="가격을 입력하세요">
+        </div>
+        <input type="hidden" name="RecipeID" value="{{ data[0]['RecipeID'] }}">
+        <input type="hidden" name="Corner" value="{{ data[0]['Corner'] }}">
+        <button type="submit">메뉴 등록</button>
+      </form>
+      <script>
+        document.querySelector('.menu-register-form').addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const formData = {
+            Term: document.getElementById('termSelect').value,
+            Date: document.getElementById('dateInput').value,
+            Price: document.getElementById('priceInput').value,
+            RecipeID: {{ data[0]['RecipeID'] }},
+          };
+
+          fetch('/', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+          })
+          .then(response => {
+            if (response.ok) {
+              alert('메뉴가 성공적으로 등록되었습니다.');
+              window.location.href = '/?date=' + formData.Date;
+            } else {
+              alert('메뉴 등록에 실패했습니다.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('메뉴 등록 중 오류가 발생했습니다.');
+          });
+        });
+      </script>
+    {% else %}
+      <h2>등록된 레시피가 없습니다.</h2>
+    {% endif %}
+</body>
+</html>

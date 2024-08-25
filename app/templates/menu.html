@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" href="https://scatch.ssu.ac.kr/wp-content/uploads/sites/5/2019/07/cropped-favicon-32x32.png">
+    <title>숭실대학교 학생식당</title>
+</head>
+<body>
+    <h1 class='title'>숭실대학교 학생식당</h1>
+    <nav>
+        <a href="{{ url_for('home') }}">메뉴</a>
+        <a href="{{ url_for('recipe') }}">레시피</a>
+        <a href="{{ url_for('ingredients') }}">재료 정보 / 구입</a>
+        <a href="{{ url_for('order') }}">주문 목록</a>
+        <a href="{{ url_for('suppliers') }}">공급자</a>
+    </nav>
+    <form action="/" method="GET">
+        <input required type="date" id="dateInput" name="date" value="{{ date if date else ''}}">
+        <button type="submit">검색</button>
+    </form>
+    
+    <table border="1">
+        <h2>{{ date }}</h2>
+        {% if data %}
+          <tr>
+            <th>메뉴 이름</th>
+            <th>시간</th>
+            <th>코너</th>
+            <th>가격</th>
+            <th></th>
+            <th></th>
+          </tr>
+          {% for row in data %}
+          <tr class="main_table">
+            <td class="main_table_item_name">
+              <a href="{{ url_for('recipe') }}?name={{ row['Name'] }}">
+                {{ row['Name'] }}
+              </a>
+            </td>
+            <td class='main_table_item_term'>
+              {% if row['Term'] == 'Breakfast' %}
+                아침
+              {% elif row['Term'] == 'Lunch' %}
+                점심
+              {% else %}
+                저녁
+              {% endif %}
+              </td>
+              <td class='main_table_item_corner'>
+                {% if row['Corner'] == 'HotPot' %}
+                  뚝배기 코너
+                {% elif row['Corner'] == 'RiceBowl' %}
+                  덮밥 코너
+                {% else %}
+                  양식 코너
+                {% endif %}
+              </td>
+              <td class='main_table_item_price'>{{ row['Price'] | round }} 원</td>
+              <td>
+                <form action="/" method="GET">
+                  <input type="hidden" name="modify" value="{{ row['MenuID'] }}">
+                  <input type="hidden" name="date" value="{{ row['Date'] }}">
+                  <button type="submit">수정</button>
+                </form>
+              </td>
+              <td>
+                <form onsubmit="deleteMenu(event, '{{ row['MenuID'] }}')">
+                  <button type="submit">삭제</button>
+                </form>
+              </td>
+          </tr>
+            {% if modify and modify|int == row['MenuID']|int %}
+              <tr>
+                <td colspan="5" class="contract-details">
+                  <form action="/" method="POST">
+                    <input type="hidden" name="MenuID" value="{{ row['MenuID'] }}">
+                    <input type="hidden" name="Date" value="{{ row['Date'] }}">
+                    <div>
+                      <label for="recipe">레시피:</label>
+                      <select id="recipe" name="RecipeID" required>
+                        {% for recipe in recipe_data %}
+                          <option value="{{ recipe['RecipeID'] }}" {% if recipe['Name'] == row['Name'] %}selected{% endif %}>
+                            {{ recipe['Name'] }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div>
+                      <label for="term">시간:</label>
+                      <select id="term" name="Term" required>
+                        <option value="Breakfast" {% if row['Term'] == 'Breakfast' %}selected{% endif %}>아침</option>
+                        <option value="Lunch" {% if row['Term'] == 'Lunch' %}selected{% endif %}>점심</option>
+                        <option value="Dinner" {% if row['Term'] == 'Dinner' %}selected{% endif %}>저녁</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="price">가격:</label>
+                      <input type="number" id="price" name="Price" value="{{ row['Price'] }}" required min="0" step="100">
+                      <span>원</span>
+                    </div>
+                    <button type="submit">저장</button>
+                  </form>
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <tr class="table_item">
+              <td class="table_item_message">
+                  <h2>등록된 메뉴가 없습니다.</h2>
+              </td>
+          </tr>
+        {% endif %}
+    </table>
+  <script>
+  function deleteMenu(event, menuId) {
+      event.preventDefault();
+      
+      if (confirm('정말 삭제하시겠습니까?')) {
+          fetch(`/?menu_id=${menuId}`, {
+              method: 'DELETE',
+          })
+          .then(response => {
+              if (response.ok) {
+                  alert('삭제 완료.');
+                  window.location.reload();
+              } else {
+                  alert('삭제 중 오류가 발생했습니다.');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('삭제 중 오류가 발생했습니다.');
+          });
+      }
+  }
+  </script>
+</body>
+</html>

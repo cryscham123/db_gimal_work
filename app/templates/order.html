@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" href="https://scatch.ssu.ac.kr/wp-content/uploads/sites/5/2019/07/cropped-favicon-32x32.png">
+    <title>숭실대학교 학생식당</title>
+</head>
+<body>
+    <h1 class='title'>숭실대학교 학생식당</h1>
+    <nav>
+        <a href="{{ url_for('home') }}">메뉴</a>
+        <a href="{{ url_for('recipe') }}">레시피</a>
+        <a href="{{ url_for('ingredients') }}">재료 정보 / 구입</a>
+        <a href="{{ url_for('order') }}">주문 목록</a>
+        <a href="{{ url_for('suppliers') }}">공급자</a>
+    </nav>
+      <table border="1">
+            <tr>
+              <th>구매 날짜</th>
+              <th>번호</th>
+              <th>재료 이름</th>
+              <th>구매 수량</th>
+              <th>상태</th>
+              <th>총 가격</th>
+              <th></th>
+            </tr>
+          {% for row in data %}
+            <tr class="table_item">
+                <td>{{ row['OrderedAt'] }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% for detail_row in detail_data %}
+              {% if detail_row['OrderingID'] == row['OrderingID'] %}
+                <tr class="table_item">
+                  <td></td>
+                  <td>{{ loop.index }}</td>
+                  <td class='table_item'>{{ detail_row['Name'] }}</td>
+                  <td class='table_item'>{{ detail_row['Quantity'] }}</td>
+                  <td class='table_item'>
+                    <select name="status" class="status-select">
+                      <option value="Preparing" {% if detail_row['Status'] == 'Preparing' %}selected{% endif %}>Preparing</option>
+                      <option value="Shipping" {% if detail_row['Status'] == 'Shipping' %}selected{% endif %}>Shipping</option>
+                      <option value="Delivered" {% if detail_row['Status'] == 'Delivered' %}selected{% endif %}>Delivered</option>
+                      <option value="Cancelled" {% if detail_row['Status'] == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                      <option value="Returning" {% if detail_row['Status'] == 'Returning' %}selected{% endif %}>Returning</option>
+                      <option value="Returned" {% if detail_row['Status'] == 'Returned' %}selected{% endif %}>Returned</option>
+                    </select>
+                  </td>
+                  <td class='table_item'>{{ detail_row['TotalCost'] | round }} 원</td>
+                  <td>
+                    <form action="/order" method="POST">
+                      <input type="hidden" name="OrderID" value="{{ detail_row['OrderingID'] }}">
+                      <input type="hidden" name="IngredientID" value="{{ detail_row['IngredientID'] }}">
+                      <input type="hidden" name="Status" class="current-status-input">
+                      <button type="submit" onclick="updateStatusInput(this)">주문 상태 수정</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+    </table>
+    <script>
+        function updateStatusInput(button) {
+            const form = button.closest('form');
+            const row = button.closest('tr');
+            const selectedStatus = row.querySelector('.status-select').value;
+            form.querySelector('.current-status-input').value = selectedStatus;
+        }
+    </script>
+</body>
+</html>
