@@ -3,6 +3,9 @@
 <head>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <title>숭실대학교 학생식당</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <h1 class='title'>숭실대학교 학생식당</h1>
@@ -11,9 +14,16 @@
         <tr class="main_table">
             <td class="main_table_item">
                 <h2 class='main_table_item_name'>{{ row['Name'] }}</h2>
-                <p class='main_table_item_term'>{{ row['Term'] }}</p>
+                  {% if row['Term'] == 'Breakfast' %}
+                    <i class="bi bi-sunrise-fill"></i>
+                  {% elif row['Term'] == 'Lunch' %}
+                    <i class="material-icons">wb_sunny</i>
+                  {% else %}
+                    <i class="bi bi-moon-stars-fill"></i>
+                  {% endif %}
+                </p>
                 <p class='main_table_item_corner'>{{ row['Corner'] }}</p>
-                <p class='main_table_item_price'>{{ row['Price'] }}</p>
+                <p class='main_table_item_price'>{{ row['Price'] }} 원</p>
                 <p class='main_table_item_date'>{{ row['Date'] }}</p>
             </td>
         </tr>
