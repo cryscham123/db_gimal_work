@@ -17,9 +17,9 @@ def get_db_connection():
 def home():
     try:
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
         
-        cursor.execute("SELECT * FROM MENU")
+        cursor.execute("SELECT * FROM MENU ORDER BY Date")
         data = cursor.fetchall()
         
         cursor.close()

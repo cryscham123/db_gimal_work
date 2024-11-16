@@ -1,15 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <title>숭실대학교 학생식당</title>
 </head>
 <body>
-    <h1>아직 만드는 중</h1>
+    <h1 class='title'>숭실대학교 학생식당</h1>
     <table border="1">
         {% for row in data %}
-        <tr>
+        <tr class="main_table">
             {% for cell in row %}
-            <td>{{ cell }}</td>
+            <td class="main_table_item">
+                <h2 class='main_table_item_name'>{{ cell['Name'] }}</h2>
+                <p class='main_table_item_term'>{{ cell['Term'] }}</p>
+                <p class='main_table_item_corner'>{{ cell['Corner'] }}</p>
+                <p class='main_table_item_price'>{{ cell['Price'] }}</p>
+                <p class='main_table_item_date'>{{ cell['Date'] }}</p>
+            </td>
             {% endfor %}
         </tr>
         {% endfor %}
