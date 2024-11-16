@@ -9,15 +9,13 @@
     <table border="1">
         {% for row in data %}
         <tr class="main_table">
-            {% for cell in row %}
             <td class="main_table_item">
-                <h2 class='main_table_item_name'>{{ cell['Name'] }}</h2>
-                <p class='main_table_item_term'>{{ cell['Term'] }}</p>
-                <p class='main_table_item_corner'>{{ cell['Corner'] }}</p>
-                <p class='main_table_item_price'>{{ cell['Price'] }}</p>
-                <p class='main_table_item_date'>{{ cell['Date'] }}</p>
+                <h2 class='main_table_item_name'>{{ row['Name'] }}</h2>
+                <p class='main_table_item_term'>{{ row['Term'] }}</p>
+                <p class='main_table_item_corner'>{{ row['Corner'] }}</p>
+                <p class='main_table_item_price'>{{ row['Price'] }}</p>
+                <p class='main_table_item_date'>{{ row['Date'] }}</p>
             </td>
-            {% endfor %}
         </tr>
         {% endfor %}
     </table>
